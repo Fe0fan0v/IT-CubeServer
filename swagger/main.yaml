@@ -1,0 +1,20 @@
+---
+openapi: 3.0.0
+info:
+  title: IT Cube Miass
+  description: IT Cube Miass
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/Fe0fan0v/ITCubeMiass/1.0.0
+  description: SwaggerHub API Auto Mocking
+get:
+  tags:
+  - main
+  summary: main page
+  description: main page
+  responses:
+    "201":
+      description: OK

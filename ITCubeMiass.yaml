@@ -1,0 +1,127 @@
+---
+
+paths:
+  /register:
+    post:
+      tags:
+      - register
+      summary: adds new user
+      description: Adds new user to the system
+      operationId: addUser
+      requestBody:
+        description: user to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+      responses:
+        "201":
+          description: user added
+        "400":
+          description: empty request, bad request
+        "409":
+          description: user already exists
+  /auth:
+    post:
+      tags:
+      - auth
+      summary: authorization
+      description: Authorizate user in system
+      requestBody:
+        description: user to authorizate
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Authorization'
+      responses:
+        "201":
+          description: sending authorization token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        "400":
+          description: empty request, bad request
+        "403":
+          description: user not exists, wrong password
+  /:
+    get:
+      tags:
+      - main
+      summary: main page
+      description: main page
+      responses:
+        "201":
+          description: OK
+  /profile:
+    post:
+      tags:
+      - profile
+      description: user profile
+      parameters:
+      - name: x-access-tokens
+        in: header
+        description: token
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+      responses:
+        "401":
+          description: token is missing
+        "503":
+          description: token is invalid
+        "200":
+          description: token passed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+components:
+  schemas:
+    Register:
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+          example: vasya@mail.ru
+        password:
+          type: string
+          example: l1o2c3v4
+    Authorization:
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+          example: vasya@mail.ru
+        password:
+          type: string
+          example: l1o2c3v4
+    Token:
+      required:
+      - token
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MzEyMDQ0NDksImlhdCI6MTYzMTIwMzg0OSwic3ViIjoiNDZhOTllNDctMTFjYi00OGE2LWFhMmItMTYyMDhkNGI1NDQyIn0.ABPwEeY7KpfQBRAAy3LKfi16RSZ9aayz5dBgoIKzaw4
+    UserInfo:
+      type: object
+      properties:
+        email:
+          type: string
+          example: vasya@mail.ru
+    TokenRequest:
+      type: object

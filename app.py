@@ -5,9 +5,26 @@ import jwt
 from datetime import datetime, timedelta
 from functools import wraps
 from users import User
+from flasgger import Swagger
+from flasgger.utils import swag_from
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = uuid.uuid4().hex
+template = {
+  "openapi": "3.0.0",
+  "info": {
+    "title": "ITCubeMiass",
+    "description": "ITCubeMiass",
+    "version": "0.0.1",
+  },
+}
+
+app.config['SWAGGER'] = {
+    'title': 'ITCubeMiass',
+
+    "specs_route": "/swagger/"
+}
+swagger = Swagger(app)
 
 
 def token_required(f):
@@ -53,7 +70,13 @@ def decode_auth_token(auth_token):
         return 'Invalid token. Please log in again.'
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
+@swag_from('swagger/main.yaml')
+def index():
+    return make_response('IT Cube Miass', 200)
+
+
+@app.route('/register', methods=['POST'])
 def register():
     if request.method == 'POST':
         email, password = request.json['email'], request.json['password']
@@ -68,10 +91,11 @@ def register():
             hashed_password = generate_password_hash(password)
             user = User(str(uuid.uuid4()), email, hashed_password)
             add_user(user.email, user.password, user.public_id)
-            return make_response(jsonify({'status': 'OK'}), 200)
+            return make_response(jsonify({'status': 'OK'}), 201)
 
 
-@app.route('/auth', methods=['GET', 'POST'])
+@app.route('/auth', methods=['POST'])
+@swag_from('swagger/auth.yaml')
 def auth():
     if request.method == 'POST':
         email, password = request.json['email'], request.json['password']
@@ -87,11 +111,11 @@ def auth():
             user = User(user_data['public_id'], user_data['email'], user_data['password'])
             if check_password_hash(user_find('email', email)['password'], password):
                 token = encode_auth_token(user.public_id)
-                return make_response(jsonify({'token': token.decode('utf-8')}), 200)
+                return make_response(jsonify({'token': token.decode('utf-8')}), 201)
             return make_response(jsonify({'error': 'wrong password'}), 403)
 
 
-@app.route('/profile', methods=['GET', 'POST'])
+@app.route('/profile', methods=['POST'])
 @token_required
 def profile(current_user):
     return make_response(jsonify({'email': current_user.email}), 200)
