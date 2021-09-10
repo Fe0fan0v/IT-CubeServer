@@ -102,7 +102,7 @@ def auth():
         return make_response(jsonify({'error': 'wrong password'}), 403)
 
 
-@app.route('/profile', methods=['POST'])
+@app.route('/profile', methods=['GET'])
 @token_required
 def profile(current_user):
     return make_response(jsonify({'email': current_user.email}), 200)
