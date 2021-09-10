@@ -10,18 +10,8 @@ from flasgger.utils import swag_from
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = uuid.uuid4().hex
-template = {
-  "openapi": "3.0.0",
-  "info": {
-    "title": "ITCubeMiass",
-    "description": "ITCubeMiass",
-    "version": "0.0.1",
-  },
-}
-
 app.config['SWAGGER'] = {
     'title': 'ITCubeMiass',
-
     "specs_route": "/swagger/"
 }
 swagger = Swagger(app)
@@ -37,8 +27,7 @@ def token_required(f):
             return make_response(jsonify({'message': 'token is missing'}), 401),
         try:
             data = decode_auth_token(token)
-            user = user_find('public_id', data)
-            current_user = User(user['public_id'], user['email'], user['password'])
+            current_user = find_in_base('public_id', data)
         except Exception:
             return make_response(jsonify({'message': 'token is invalid'}), 503)
         return f(current_user, *args, **kwargs)
@@ -85,12 +74,12 @@ def register():
         elif not all(key in request.json for key in
                      ['email', 'password']):
             return make_response(jsonify({'error': 'Bad request'}), 400)
-        elif user_find('email', request.json['email']):
+        elif find_in_base('email', request.json['email']):
             return make_response(jsonify({'error': 'User already exists'}), 409)
         else:
             hashed_password = generate_password_hash(password)
             user = User(str(uuid.uuid4()), email, hashed_password)
-            add_user(user.email, user.password, user.public_id)
+            user.add_to_base()
             return make_response(jsonify({'status': 'OK'}), 201)
 
 
@@ -104,15 +93,13 @@ def auth():
         elif not all(key in request.json for key in
                      ['email', 'password']):
             return make_response(jsonify({'error': 'Bad request'}), 400)
-        user_data = user_find('email', email)
-        if not user_data:
+        user = find_in_base('email', email)
+        if not user:
             return make_response(jsonify({'error': 'User not exists'}), 403)
-        else:
-            user = User(user_data['public_id'], user_data['email'], user_data['password'])
-            if check_password_hash(user_find('email', email)['password'], password):
+        elif check_password_hash(user.password, password):
                 token = encode_auth_token(user.public_id)
                 return make_response(jsonify({'token': token.decode('utf-8')}), 201)
-            return make_response(jsonify({'error': 'wrong password'}), 403)
+        return make_response(jsonify({'error': 'wrong password'}), 403)
 
 
 @app.route('/profile', methods=['POST'])

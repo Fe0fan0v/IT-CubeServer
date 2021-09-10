@@ -1,4 +1,5 @@
 import uuid
+from users import User
 
 import pymongo
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,23 +9,7 @@ db = client.itcube
 coll = db.users
 
 
-def add_user(email, hash, public_id):
-        coll.insert_one({
-                'email': email,
-                'password': hash,
-                'public_id': public_id})
-
-
-def user_login(email, password):
-        if coll.find_one({'email': email}):
-                if check_password_hash(coll.find_one({'email': email})['password'], password):
-                        return jsonify({'status': 'OK'})
-                else:
-                        return jsonify({'error': 'Invalid password'})
-        else:
-                return jsonify({'error': 'User does not exists'})
-
-
-def user_find(find_param, param):
-        return coll.find_one({find_param: param})
+def find_in_base(param_to_find, param_value):
+        user_data = coll.find_one({param_to_find: param_value})
+        return User(user_data['public_id'], user_data['email'], user_data['password'])
 

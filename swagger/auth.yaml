@@ -35,18 +35,6 @@ post:
 
 components:
   schemas:
-    Register:
-      required:
-      - email
-      - password
-      type: object
-      properties:
-        email:
-          type: string
-          example: vasya@mail.ru
-        password:
-          type: string
-          example: l1o2c3v4
     Authorization:
       required:
       - email
@@ -67,11 +55,3 @@ components:
         token:
           type: string
           example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MzEyMDQ0NDksImlhdCI6MTYzMTIwMzg0OSwic3ViIjoiNDZhOTllNDctMTFjYi00OGE2LWFhMmItMTYyMDhkNGI1NDQyIn0.ABPwEeY7KpfQBRAAy3LKfi16RSZ9aayz5dBgoIKzaw4
-    UserInfo:
-      type: object
-      properties:
-        email:
-          type: string
-          example: vasya@mail.ru
-    TokenRequest:
-      type: object
