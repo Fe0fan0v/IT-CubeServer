@@ -97,8 +97,8 @@ def auth():
         if not user:
             return make_response(jsonify({'error': 'User not exists'}), 403)
         elif check_password_hash(user.password, password):
-                token = encode_auth_token(user.public_id)
-                return make_response(jsonify({'token': token.decode('utf-8')}), 201)
+            token = encode_auth_token(user.public_id)
+            return make_response(jsonify({'token': token.decode('utf-8')}), 201)
         return make_response(jsonify({'error': 'wrong password'}), 403)
 
 

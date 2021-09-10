@@ -10,6 +10,8 @@ coll = db.users
 
 
 def find_in_base(param_to_find, param_value):
-        user_data = coll.find_one({param_to_find: param_value})
+    user_data = coll.find_one({param_to_find: param_value})
+    if user_data:
         return User(user_data['public_id'], user_data['email'], user_data['password'])
-
+    else:
+        return None
