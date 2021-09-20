@@ -7,13 +7,16 @@ from functools import wraps
 from users import User
 from flasgger import Swagger
 from flasgger.utils import swag_from
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+cors = CORS(app)
 app.config['SECRET_KEY'] = uuid.uuid4().hex
 app.config['SWAGGER'] = {
     'title': 'ITCubeMiass',
-    "specs_route": "/swagger/"
+    'route': '/apidocs/',
 }
+app.config['CORS_HEADERS'] = 'Content-Type'
 swagger = Swagger(app)
 
 
@@ -31,6 +34,7 @@ def token_required(f):
         except Exception:
             return make_response(jsonify({'message': 'token is invalid'}), 503)
         return f(current_user, *args, **kwargs)
+
     return decorator
 
 
@@ -60,12 +64,14 @@ def decode_auth_token(auth_token):
 
 
 @app.route('/', methods=['GET'])
-@swag_from('swagger/main.yaml')
+@cross_origin()
+@swag_from('swagger/main.yml')
 def index():
     return make_response('IT Cube Miass', 200)
 
 
 @app.route('/register', methods=['POST'])
+@cross_origin()
 def register():
     if request.method == 'POST':
         email, password = request.json['email'], request.json['password']
@@ -84,7 +90,8 @@ def register():
 
 
 @app.route('/auth', methods=['POST'])
-@swag_from('swagger/auth.yaml')
+@cross_origin()
+@swag_from('swagger/auth.yml')
 def auth():
     if request.method == 'POST':
         email, password = request.json['email'], request.json['password']
@@ -103,6 +110,7 @@ def auth():
 
 
 @app.route('/profile', methods=['GET'])
+@cross_origin()
 @token_required
 def profile(current_user):
     return make_response(jsonify({'email': current_user.email}), 200)

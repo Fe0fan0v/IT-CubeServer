@@ -15,12 +15,6 @@ post:
   - auth
   summary: authorization
   description: Authorizate user in system
-  requestBody:
-    description: user to authorizate
-    content:
-      application/json:
-        schema:
-          $ref: '#/components/schemas/Authorization'
   responses:
     "201":
       description: sending authorization token
@@ -32,7 +26,12 @@ post:
       description: empty request, bad request
     "403":
       description: user not exists, wrong password
-
+  requestBody:
+      description: user to authorizate
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Authorization'
 components:
   schemas:
     Authorization:
