@@ -119,7 +119,9 @@ def profile(current_user):
 @app.route('/users', methods=['GET'])
 @cross_origin()
 @token_required
-def users_list():
+def users_list(current_user):
+    if not current_user:
+        return make_response(jsonify({'error': 'Undefined user'}))
     users = find_in_base()
     if users:
         return make_response(jsonify({'users': users}), 200)
