@@ -17,7 +17,6 @@ class User:
             'email': self.email,
             'password': self.password,
             'public_id': self.public_id,
-            'role': self.role
         })
 
     def __repr__(self):

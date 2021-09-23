@@ -118,7 +118,7 @@ def profile(current_user):
 
 @app.route('/users', methods=['GET'])
 @cross_origin()
-# @token_required
+@token_required
 def users_list():
     users = find_in_base()
     if users:
