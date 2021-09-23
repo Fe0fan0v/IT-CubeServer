@@ -116,5 +116,16 @@ def profile(current_user):
     return make_response(jsonify({'email': current_user.email}), 200)
 
 
+@app.route('/users', methods=['GET'])
+@cross_origin()
+# @token_required
+def users_list():
+    users = find_in_base()
+    if users:
+        return make_response(jsonify({'users': users}), 200)
+    else:
+        return make_response(jsonify({'error': 'No users was find'}), 404)
+
+
 if __name__ == '__main__':
     app.run()

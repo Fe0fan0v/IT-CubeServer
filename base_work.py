@@ -1,6 +1,6 @@
 import uuid
 from users import User
-
+from flask import jsonify
 import pymongo
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import jsonify
@@ -9,9 +9,15 @@ db = client.itcube
 coll = db.users
 
 
-def find_in_base(param_to_find, param_value):
-    user_data = coll.find_one({param_to_find: param_value})
-    if user_data:
-        return User(user_data['public_id'], user_data['email'], user_data['password'])
+def find_in_base(param_to_find=None, param_value=None):
+    if not param_to_find:
+        result = [user for user in coll.find({})]
+        keys = [user['email'] for user in result]
+        values = [{val: user[val] for val in list(user.keys())[2:]} for user in result]
+        return dict(zip(keys, values))
     else:
-        return None
+        user_data = coll.find_one({param_to_find: param_value})
+        if user_data:
+            return User(user_data['public_id'], user_data['email'], user_data['password'])
+        else:
+            return None
