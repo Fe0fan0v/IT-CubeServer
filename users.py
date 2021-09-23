@@ -6,11 +6,10 @@ coll = db.users
 
 
 class User:
-    def __init__(self, public_id, email, password, role):
+    def __init__(self, public_id, email, password):
         self.public_id = public_id
         self.email = email
         self.password = password
-        self.role = role
 
     def add_to_base(self):
         coll.insert_one({
