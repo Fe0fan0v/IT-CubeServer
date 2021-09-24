@@ -63,6 +63,7 @@ def index():
 
 
 @app.route('/register', methods=['POST'])
+@swag_from('swagger/register.yml')
 def register():
     if request.method == 'POST':
         email, password = request.json['email'], request.json['password']
@@ -109,6 +110,7 @@ def profile(current_user):
 
 
 @app.route('/users', methods=['GET'])
+@swag_from('swagger/users.yml')
 @token_required
 def users_list(current_user):
     if not current_user:

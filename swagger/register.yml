@@ -1,0 +1,43 @@
+tags:
+  - register
+summary: adds new user
+operationId: addUser
+description: Adds new user to the system
+responses:
+  '201':
+    description: user added
+    schema:
+      type: object
+      properties:
+        status:
+          type: string
+          example: OK
+  '400':
+    description: 'empty request, bad request'
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Empty request, Bad request
+  '409':
+    description: user already exists
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: User already exists
+parameters:
+  - in: body
+    name: email and password
+    required: true
+    schema:
+      type: object
+      properties:
+        email:
+          type: string
+          example: vasya@mail.ru
+        password:
+          type: string
+          example: l1o2c3v4

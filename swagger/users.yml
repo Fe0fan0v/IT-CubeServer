@@ -1,0 +1,48 @@
+tags:
+  - users
+description: users list (for loggined only)
+responses:
+  '404':
+    description: no users founded
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: No users was find
+  '401':
+    description: no users founded
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: user is not logged in
+  '200':
+    description: users founded
+    schema:
+      type: object
+      properties:
+        users:
+          type: object
+          properties:
+            email:
+              type: object
+              properties:
+                password:
+                  type: string
+                  example: lkasjdfl;kj092039a;lsdfj;laskf;l2239
+                user_id:
+                  type: string
+                  example: 12d1asdadf32
+parameters:
+  - in: header
+    name: x-access-tokens
+    required: true
+    description: token
+    schema:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MzEyMDQ0NDksImlhdCI6MTYzMTIwMzg0OSwic3ViIjoiNDZhOTllNDctMTFjYi00OGE2LWFhMmItMTYyMDhkNGI1NDQyIn0.ABPwEeY7KpfQBRAAy3LKfi16RSZ9aayz5dBgoIKzaw4
