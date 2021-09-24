@@ -1,43 +1,39 @@
----
-openapi: 3.0.0
-info:
-  title: IT Cube Miass
-  description: IT Cube Miass
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 1.0.0
-servers:
-- url: https://virtserver.swaggerhub.com/Fe0fan0v/ITCubeMiass/1.0.0
-  description: SwaggerHub API Auto Mocking
-post:
-  tags:
+tags:
   - auth
-  summary: authorization
-  description: Authorizate user in system
-  responses:
-    "201":
-      description: sending authorization token
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Token'
-    "400":
-      description: empty request, bad request
-    "403":
-      description: user not exists, wrong password
-  requestBody:
-      description: user to authorizate
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Authorization'
-components:
-  schemas:
-    Authorization:
+summary: authorization
+description: Authorizate user in system
+responses:
+  '201':
+    description: sending authorization token
+    schema:
+      type: object
       required:
-      - email
-      - password
+        - token
+      properties:
+        token:
+          type: string
+          example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MzEyMDQ0NDksImlhdCI6MTYzMTIwMzg0OSwic3ViIjoiNDZhOTllNDctMTFjYi00OGE2LWFhMmItMTYyMDhkNGI1NDQyIn0.ABPwEeY7KpfQBRAAy3LKfi16RSZ9aayz5dBgoIKzaw4
+  '400':
+    description: empty request, bad request
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Empty request, Bad request
+  '403':
+    description: user not exists, wrong password
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: User not exists, wrong password
+parameters:
+  - in: body
+    name: email and password
+    required: true
+    schema:
       type: object
       properties:
         email:
@@ -46,11 +42,3 @@ components:
         password:
           type: string
           example: l1o2c3v4
-    Token:
-      required:
-      - token
-      type: object
-      properties:
-        token:
-          type: string
-          example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MzEyMDQ0NDksImlhdCI6MTYzMTIwMzg0OSwic3ViIjoiNDZhOTllNDctMTFjYi00OGE2LWFhMmItMTYyMDhkNGI1NDQyIn0.ABPwEeY7KpfQBRAAy3LKfi16RSZ9aayz5dBgoIKzaw4

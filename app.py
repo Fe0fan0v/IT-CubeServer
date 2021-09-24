@@ -7,16 +7,10 @@ from functools import wraps
 from users import User
 from flasgger import Swagger
 from flasgger.utils import swag_from
-from flask_cors import CORS, cross_origin
+
 
 app = Flask(__name__)
-cors = CORS(app)
 app.config['SECRET_KEY'] = uuid.uuid4().hex
-app.config['SWAGGER'] = {
-    'title': 'ITCubeMiass',
-    'route': '/apidocs/',
-}
-app.config['CORS_HEADERS'] = 'Content-Type'
 swagger = Swagger(app)
 
 
@@ -27,12 +21,12 @@ def token_required(f):
         if 'x-access-tokens' in request.headers:
             token = request.headers['x-access-tokens']
         if not token:
-            return make_response(jsonify({'message': 'token is missing'}), 401),
+            return make_response(jsonify({'error': 'token is missing'}), 401),
         try:
             data = decode_auth_token(token)
             current_user = find_in_base('public_id', data)
         except Exception:
-            return make_response(jsonify({'message': 'token is invalid'}), 503)
+            return make_response(jsonify({'error': 'token is invalid'}), 503)
         return f(current_user, *args, **kwargs)
 
     return decorator
@@ -64,14 +58,11 @@ def decode_auth_token(auth_token):
 
 
 @app.route('/', methods=['GET'])
-@cross_origin()
-@swag_from('swagger/main.yml')
 def index():
     return make_response('IT Cube Miass', 200)
 
 
 @app.route('/register', methods=['POST'])
-@cross_origin()
 def register():
     if request.method == 'POST':
         email, password = request.json['email'], request.json['password']
@@ -90,7 +81,6 @@ def register():
 
 
 @app.route('/auth', methods=['POST'])
-@cross_origin()
 @swag_from('swagger/auth.yml')
 def auth():
     if request.method == 'POST':
@@ -110,18 +100,19 @@ def auth():
 
 
 @app.route('/profile', methods=['GET'])
-@cross_origin()
+@swag_from('swagger/profile.yml')
 @token_required
 def profile(current_user):
+    if not current_user:
+        return make_response(jsonify({'error': 'the user is not logged in'}), 402)
     return make_response(jsonify({'email': current_user.email}), 200)
 
 
 @app.route('/users', methods=['GET'])
-@cross_origin()
 @token_required
 def users_list(current_user):
     if not current_user:
-        return make_response(jsonify({'error': 'Undefined user'}))
+        return make_response(jsonify({'error': 'the user is not logged in'}), 401)
     users = find_in_base()
     if users:
         return make_response(jsonify({'users': users}), 200)
