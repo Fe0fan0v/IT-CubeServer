@@ -11,7 +11,9 @@ from flasgger.utils import swag_from
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = uuid.uuid4().hex
-swagger = Swagger(app)
+SWAGGER_TEMPLATE = {
+    "securityDefinitions": {"APIKeyHeader": {"type": "apiKey", "name": "x-access-token", "in": "header"}}}
+swagger = Swagger(app, template=SWAGGER_TEMPLATE)
 
 
 def token_required(f):

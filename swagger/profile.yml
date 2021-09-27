@@ -22,7 +22,6 @@ parameters:
   - in: header
     name: x-access-tokens
     required: true
-    description: token
     schema:
       type: object
       properties:
