@@ -9,9 +9,9 @@ responses:
     schema:
       type: object
       properties:
-        status:
+        token:
           type: string
-          example: OK
+          example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MzEyMDQ0NDksImlhdCI6MTYzMTIwMzg0OSwic3ViIjoiNDZhOTllNDctMTFjYi00OGE2LWFhMmItMTYyMDhkNGI1NDQyIn0.ABPwEeY7KpfQBRAAy3LKfi16RSZ9aayz5dBgoIKzaw4
   '400':
     description: 'empty request, bad request'
     schema:

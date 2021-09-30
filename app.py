@@ -1,16 +1,21 @@
 from flask import Flask, request, jsonify, make_response
-from base_work import *
 import uuid
 import jwt
 from datetime import datetime, timedelta
 from functools import wraps
-from users import User
+from datebase.models import User
+from datebase.db import initialize_db
 from flasgger import Swagger
 from flasgger.utils import swag_from
-
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = uuid.uuid4().hex
+app.config['MONGO_SETTINGS'] = {
+    'host': "mongodb://vadim:Oxan4ikDanArt@cluster0-shard-00-00.ckxy7.mongodb.net:27017,cluster0-shard-00-01.ckxy7.mongodb.net:27017,cluster0-shard-00-02.ckxy7.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-7snvuk-shard-0&authSource=admin&retryWrites=true&w=majority"
+}
+app.config['JWT_EXPIRATION_DELTA'] = timedelta(days=14)
+initialize_db(app)
 SWAGGER_TEMPLATE = {
     "securityDefinitions": {"APIKeyHeader": {"type": "apiKey", "name": "x-access-token", "in": "header"}}}
 swagger = Swagger(app, template=SWAGGER_TEMPLATE)
@@ -26,7 +31,7 @@ def token_required(f):
             return make_response(jsonify({'error': 'token is missing'}), 401),
         try:
             data = decode_auth_token(token)
-            current_user = find_in_base('public_id', data)
+            current_user = User.objects(public_id=data).first()
         except Exception:
             return make_response(jsonify({'error': 'token is invalid'}), 503)
         return f(current_user, *args, **kwargs)
@@ -37,7 +42,7 @@ def token_required(f):
 def encode_auth_token(public_id):
     try:
         payload = {
-            'exp': datetime.utcnow() + timedelta(minutes=10),
+            'exp': datetime.utcnow() + timedelta(days=14),
             'iat': datetime.utcnow(),
             'sub': public_id
         }
@@ -68,19 +73,22 @@ def index():
 @swag_from('swagger/register.yml')
 def register():
     if request.method == 'POST':
-        email, password = request.json['email'], request.json['password']
+        body = dict()
+        body['public_id'] = str(uuid.uuid4())
+        body['email'] = request.json['email']
+        body['password'] = generate_password_hash(request.json['password'])
         if not request.json:
             return make_response(jsonify({'error': 'Empty request'}), 400)
         elif not all(key in request.json for key in
                      ['email', 'password']):
             return make_response(jsonify({'error': 'Bad request'}), 400)
-        elif find_in_base('email', request.json['email']):
+        elif User.objects(email=body['email']).first():
             return make_response(jsonify({'error': 'User already exists'}), 409)
         else:
-            hashed_password = generate_password_hash(password)
-            user = User(str(uuid.uuid4()), email, hashed_password)
-            user.add_to_base()
-            return make_response(jsonify({'status': 'OK'}), 201)
+            user = User(**body)
+            user.save()
+            token = encode_auth_token(user.public_id)
+            return make_response(jsonify({'token': token.decode('utf-8')}), 201)
 
 
 @app.route('/auth', methods=['POST'])
@@ -93,7 +101,7 @@ def auth():
         elif not all(key in request.json for key in
                      ['email', 'password']):
             return make_response(jsonify({'error': 'Bad request'}), 400)
-        user = find_in_base('email', email)
+        user = User.objects(email=email).first()
         if not user:
             return make_response(jsonify({'error': 'User not exists'}), 403)
         elif check_password_hash(user.password, password):
@@ -108,7 +116,7 @@ def auth():
 def profile(current_user):
     if not current_user:
         return make_response(jsonify({'error': 'the user is not logged in'}), 402)
-    return make_response(jsonify({'email': current_user.email}), 200)
+    return make_response(jsonify(current_user), 200)
 
 
 @app.route('/users', methods=['GET'])
@@ -117,9 +125,9 @@ def profile(current_user):
 def users_list(current_user):
     if not current_user:
         return make_response(jsonify({'error': 'the user is not logged in'}), 401)
-    users = find_in_base()
+    users = User.objects()
     if users:
-        return make_response(jsonify({'users': users}), 200)
+        return make_response(jsonify(users), 200)
     else:
         return make_response(jsonify({'error': 'No users was find'}), 404)
 
