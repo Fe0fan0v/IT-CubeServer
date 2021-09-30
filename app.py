@@ -12,7 +12,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.config['SECRET_KEY'] = uuid.uuid4().hex
 app.config['MONGO_SETTINGS'] = {
-    'host': "mongodb://vadim:Oxan4ikDanArt@cluster0-shard-00-00.ckxy7.mongodb.net:27017,cluster0-shard-00-01.ckxy7.mongodb.net:27017,cluster0-shard-00-02.ckxy7.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-7snvuk-shard-0&authSource=admin&retryWrites=true&w=majority"
+    'host': "mongodb://localhost:27017/itcube"
 }
 app.config['JWT_EXPIRATION_DELTA'] = timedelta(days=14)
 initialize_db(app)
